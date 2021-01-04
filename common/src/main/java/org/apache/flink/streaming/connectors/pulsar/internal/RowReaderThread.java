@@ -75,9 +75,9 @@ public class RowReaderThread extends ReaderThread<Row> {
             if (deserializer.isEndOfStream(record)) {
                 return;
             }
-            if (record.getField(0) == null){
-                throw new RuntimeException("record index 0 is null");
-            }
+//            if (record.getField(0) == null){
+//                throw new RuntimeException("record index 0 is null");
+//            }
             owner.emitRecord(record, state, messageId);
         } catch (Throwable e) {
             e.printStackTrace();

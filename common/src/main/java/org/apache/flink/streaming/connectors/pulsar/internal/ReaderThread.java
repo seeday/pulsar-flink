@@ -204,7 +204,7 @@ public class ReaderThread<T> extends Thread {
         owner.emitRecord(record, state, messageId);
     }
 
-    public void cancel() throws IOException {
+    public void cancel() {
         this.running = false;
 
         if (reader != null) {

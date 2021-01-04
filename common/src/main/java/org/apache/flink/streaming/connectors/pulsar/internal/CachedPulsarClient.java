@@ -53,7 +53,7 @@ public class CachedPulsarClient {
     private static RemovalListener<ClientConfigurationData, PulsarClientImpl> removalListener = notification -> {
         ClientConfigurationData config = notification.getKey();
         PulsarClientImpl client = notification.getValue();
-        log.debug("Evicting pulsar client {} with config {}, due to {}",
+        log.info("Evicting pulsar client {} with config {}, due to {}",
                 client.toString(), config.toString(), notification.getCause().toString());
         close(config, client);
     };
@@ -69,7 +69,6 @@ public class CachedPulsarClient {
                 return guavaCache;
             }
             guavaCache = CacheBuilder.newBuilder()
-                    .maximumSize(cacheSize)
                     .removalListener(removalListener)
                     .build(cacheLoader);
             return guavaCache;
