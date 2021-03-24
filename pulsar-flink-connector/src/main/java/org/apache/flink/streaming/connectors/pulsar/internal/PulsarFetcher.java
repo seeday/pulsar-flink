@@ -31,7 +31,6 @@ import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
 import org.apache.pulsar.shade.com.google.common.collect.ImmutableList;
 
-import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -516,7 +515,7 @@ public class PulsarFetcher<T> {
             ReaderThread<T> readerT = null;
             try {
                 readerT = createReaderThread(exceptionProxy, state);
-            } catch (IOException|ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 exceptionProxy.reportError(e);
             }
             readerT.setName(String.format("Pulsar Reader for %s in task %s", state.getTopicRange(), runtimeContext.getTaskName()));
