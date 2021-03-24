@@ -31,7 +31,7 @@ import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
 import org.apache.pulsar.shade.com.google.common.collect.ImmutableList;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -513,7 +513,12 @@ public class PulsarFetcher<T> {
         Map<TopicRange, ReaderThread<T>> topic2Threads = new HashMap<>();
 
         for (PulsarTopicState state : states) {
-            ReaderThread<T> readerT = createReaderThread(exceptionProxy, state);
+            ReaderThread<T> readerT = null;
+            try {
+                readerT = createReaderThread(exceptionProxy, state);
+            } catch (IOException|ClassNotFoundException e) {
+                exceptionProxy.reportError(e);
+            }
             readerT.setName(String.format("Pulsar Reader for %s in task %s", state.getTopicRange(), runtimeContext.getTaskName()));
             readerT.setDaemon(true);
             readerT.start();
@@ -527,13 +532,18 @@ public class PulsarFetcher<T> {
         return subscribedPartitionStates;
     }
 
-    protected ReaderThread<T> createReaderThread(ExceptionProxy exceptionProxy, PulsarTopicState state) {
+    protected ReaderThread<T> createReaderThread(ExceptionProxy exceptionProxy, PulsarTopicState state)
+            throws IOException, ClassNotFoundException {
+        PipedOutputStream pipedOutputStream = new PipedOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(pipedOutputStream);
+        ObjectInputStream objectInputStream = new ObjectInputStream(new PipedInputStream(pipedOutputStream));
+        objectOutputStream.writeObject(deserializer);
         return new ReaderThread<>(
                 this,
                 state,
                 clientConf,
                 readerConf,
-                deserializer,
+                (PulsarDeserializationSchema<T>) objectInputStream.readObject(),
                 pollTimeoutMs,
                 exceptionProxy,
                 failOnDataLoss);
