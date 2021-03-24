@@ -32,6 +32,10 @@ import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
 import org.apache.pulsar.shade.com.google.common.collect.ImmutableList;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -534,9 +538,9 @@ public class PulsarFetcher<T> {
 
     protected ReaderThread<T> createReaderThread(ExceptionProxy exceptionProxy, PulsarTopicState state)
             throws IOException, ClassNotFoundException {
-        PipedOutputStream pipedOutputStream = new PipedOutputStream();
+        PipedOutputStream  pipedOutputStream  = new PipedOutputStream();
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(pipedOutputStream);
-        ObjectInputStream objectInputStream = new ObjectInputStream(new PipedInputStream(pipedOutputStream));
+        ObjectInputStream  objectInputStream  = new ObjectInputStream(new PipedInputStream(pipedOutputStream));
         objectOutputStream.writeObject(deserializer);
         return new ReaderThread<>(
                 this,
